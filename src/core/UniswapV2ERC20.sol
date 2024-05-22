@@ -15,12 +15,16 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
     mapping(address => mapping(address => uint256)) public allowance;
 
     bytes32 public DOMAIN_SEPARATOR;
+    // @note not too sure why i had to comment this out
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
     mapping(address => uint256) public nonces;
 
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    // @note comment them out because they are already declared in the interface
+    /// @dev  Solidity 0.8.x introduced stricter checks to prevent issues that could arise from redeclaring events or other elements that are inherited from interfaces or base contracts
+
+    // event Approval(address indexed owner, address indexed spender, uint256 value);
+    // event Transfer(address indexed from, address indexed to, uint256 value);
 
     constructor() public {
         uint256 chainId = block.chainid; // @note chain id opcode must be called as a function in 0.8.x

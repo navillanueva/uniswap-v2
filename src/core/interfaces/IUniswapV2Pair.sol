@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 
 interface IUniswapV2Pair {
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    /// @dev change the name so that it doesn't clash with erc20s interface
+    event ApprovalPair(address indexed owner, address indexed spender, uint256 value);
+    event TransferPair(address indexed from, address indexed to, uint256 value);
 
     function name() external pure returns (string memory);
     function symbol() external pure returns (string memory);
