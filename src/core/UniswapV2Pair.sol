@@ -52,7 +52,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     // event Sync(uint112 reserve0, uint112 reserve1);
 
     // @note moved to before the functions
-    constructor() public {
+    // @note removed public because constructos are implecitely internal and solidity 0.8 enforces this condition
+    constructor() {
         factory = msg.sender;
     }
 
