@@ -11,7 +11,8 @@ contract UniswapV2Factory is IUniswapV2Factory {
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
 
-    event PairCreated(address indexed token0, address indexed token1, address pair, uint256);
+    // @note event is already declared in the interface and solidity 0.8 does stricter type checking
+    // event PairCreated(address indexed token0, address indexed token1, address pair, uint256);
 
     // @note removed PUBLIC - solidity 0.8 warns you from using public/external on constructors as they are implecitely internal
     constructor(address _feeToSetter) {
