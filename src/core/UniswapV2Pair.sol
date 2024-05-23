@@ -38,18 +38,19 @@ contract UniswapV2Pair is UniswapV2ERC20 {
     }
 
     // @note solidity 0.8.x introduces stricter type checking to avoid redundancies, it is already declared in the interface
+    // @note brought them back after changing the inheritance schema
 
-    // event Mint(address indexed sender, uint256 amount0, uint256 amount1);
-    // event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed to);
-    // event Swap(
-    //     address indexed sender,
-    //     uint256 amount0In,
-    //     uint256 amount1In,
-    //     uint256 amount0Out,
-    //     uint256 amount1Out,
-    //     address indexed to
-    // );
-    // event Sync(uint112 reserve0, uint112 reserve1);
+    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
+    event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed to);
+    event Swap(
+        address indexed sender,
+        uint256 amount0In,
+        uint256 amount1In,
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address indexed to
+    );
+    event Sync(uint112 reserve0, uint112 reserve1);
 
     // @note moved to before the functions
     // @note removed public because constructos are implecitely internal and solidity 0.8 enforces this condition
