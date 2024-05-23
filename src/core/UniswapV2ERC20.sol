@@ -26,7 +26,8 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
     // event Approval(address indexed owner, address indexed spender, uint256 value);
     // event Transfer(address indexed from, address indexed to, uint256 value);
 
-    constructor() public {
+    // @note removed PUBLIC - solidity 0.8 warns you from using public/external on constructors as they are implecitely internal
+    constructor() {
         uint256 chainId = block.chainid; // @note chain id opcode must be called as a function in 0.8.x
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(

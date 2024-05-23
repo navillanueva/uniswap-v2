@@ -13,7 +13,8 @@ contract UniswapV2Factory is IUniswapV2Factory {
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint256);
 
-    constructor(address _feeToSetter) public {
+    // @note removed PUBLIC - solidity 0.8 warns you from using public/external on constructors as they are implecitely internal
+    constructor(address _feeToSetter) {
         feeToSetter = _feeToSetter;
     }
 
