@@ -63,28 +63,31 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
         emit Transfer(from, to, value);
     }
 
-    // @note you have to change the inheritance layout or the names of the functions
+    // @note overriding interface function
     function approve(address spender, uint256 value) external override returns (bool) {
         _approve(msg.sender, spender, value);
         return true;
     }
 
-    // @note you have to change the inheritance layout or the names of the functions
+    // @note overriding interface function
     function transfer(address to, uint256 value) external override returns (bool) {
         _transfer(msg.sender, to, value);
         return true;
     }
 
-    // @note you have to change the inheritance layout or the names of the functions
+    // @note overriding interface function
     function transferFrom(address from, address to, uint256 value) external override returns (bool) {
-        if (allowance[from][msg.sender] != uint256(-1)) {
+
+        // @note solidity 0.5.15 switch int_const -1 to uint256, which would result in the maximum value for uint256 (i.e., 2^256 - 1).
+        // @note solidity 0.8.x use the type(uint256).max to represent the maximum value of uint256. This approach is safer and more explicit.
+        if (allowance[from][msg.sender] != type(uint256).max) {
             allowance[from][msg.sender] = allowance[from][msg.sender].sub(value);
         }
         _transfer(from, to, value);
         return true;
     }
 
-    // @note you have to change the inheritance layout or the names of the functions
+    // @note overriding interface function
     function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
         external override
     {
