@@ -5,7 +5,7 @@ import "./interfaces/IUniswapV2ERC20.sol";
 import "./libraries/SafeMath.sol";
 
 contract UniswapV2ERC20 is IUniswapV2ERC20 {
-    using SafeMath for uint256;
+    // using SafeMath for uint256;
 
     string public constant name = "Uniswap V2";
     string public constant symbol = "UNI-V2";
@@ -41,14 +41,26 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
     }
 
     function _mint(address to, uint256 value) internal {
-        totalSupply = totalSupply.add(value);
-        balanceOf[to] = balanceOf[to].add(value);
+
+        // @note removed safemath consecuence
+        // totalSupply = totalSupply.add(value);
+        // balanceOf[to] = balanceOf[to].add(value);
+        
+        totalSupply += value;
+        balanceOf[to] += value;
+        
         emit Transfer(address(0), to, value);
     }
 
     function _burn(address from, uint256 value) internal {
-        balanceOf[from] = balanceOf[from].sub(value);
-        totalSupply = totalSupply.sub(value);
+
+        // @note removed safemath consecuence
+        // balanceOf[from] = balanceOf[from].sub(value);
+        // totalSupply = totalSupply.sub(value);
+
+        balanceOf[from] -= value;
+        totalSupply -= value;
+
         emit Transfer(from, address(0), value);
     }
 
@@ -58,8 +70,14 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
     }
 
     function _transfer(address from, address to, uint256 value) private {
-        balanceOf[from] = balanceOf[from].sub(value);
-        balanceOf[to] = balanceOf[to].add(value);
+
+        // @note removed safemath consecuence
+        // balanceOf[from] = balanceOf[from].sub(value);
+        // balanceOf[to] = balanceOf[to].add(value);
+
+        balanceOf[from] -= value;
+        balanceOf[to] += value;
+
         emit Transfer(from, to, value);
     }
 
@@ -81,7 +99,9 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
         // @note solidity 0.5.15 switch int_const -1 to uint256, which would result in the maximum value for uint256 (i.e., 2^256 - 1).
         // @note solidity 0.8.x use the type(uint256).max to represent the maximum value of uint256. This approach is safer and more explicit.
         if (allowance[from][msg.sender] != type(uint256).max) {
-            allowance[from][msg.sender] = allowance[from][msg.sender].sub(value);
+            // @note removed safemath consecuence
+            // allowance[from][msg.sender] = allowance[from][msg.sender].sub(value);
+            allowance[from][msg.sender] -= value;
         }
         _transfer(from, to, value);
         return true;
