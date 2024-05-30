@@ -1,15 +1,15 @@
 // SPX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// @note adding solady import
+// @note adding solady imports
 // @question why are named imports better
 import {ERC20} from "solady/tokens/ERC20.sol";
-import "./interfaces/IUniswapV2Pair.sol";
+import {FixedPointMathLib} from "solady/utils/FixedPointMathLib.sol";
 
 // @note removing old imports 
 // import "./UniswapV2ERC20.sol";
-// import "./libraries/SafeMath.sol";
 
+import "./interfaces/IUniswapV2Pair.sol";
 import "./libraries/Math.sol";
 import "./libraries/UQ112x112.sol";
 import "./interfaces/IERC20.sol";
@@ -123,9 +123,13 @@ contract UniswapV2Pair is ERC20 {
         uint256 _kLast = kLast; // gas savings
         if (feeOn) {
             if (_kLast != 0) {
-                // @note removed mul
-                uint256 rootK = Math.sqrt(uint256(_reserve0) * _reserve1);
-                uint256 rootKLast = Math.sqrt(_kLast);
+                // @note removed mul and switched to solady sqrt
+
+                // uint256 rootK = Math.sqrt(uint256(_reserve0) * _reserve1);
+                // uint256 rootKLast = Math.sqrt(_kLast);
+
+                uint256 rootK = FixedPointMathLib.sqrt(uint256(_reserve0) * _reserve1);
+                uint256 rootKLast = FixedPointMathLib.sqrt(_kLast);
                 if (rootK > rootKLast) {
                     // @note removed mul & sub
                     // @note changed totalSupply to totalSupply() after adding solady LP token
@@ -154,8 +158,9 @@ contract UniswapV2Pair is ERC20 {
         // @note changed totalSupply to totalSupply() after adding solady LP token
         uint256 _totalSupply = totalSupply(); // gas savings, must be defined here since totalSupply can update in _mintFee
         if (_totalSupply == 0) {
-            // @note removed mul & sub
-            liquidity = Math.sqrt(amount0 * amount1) - MINIMUM_LIQUIDITY;
+            // @note removed mul & sub and added solady sqrt
+            // liquidity = Math.sqrt(amount0 * amount1) - MINIMUM_LIQUIDITY;
+            liquidity = FixedPointMathLib.sqrt(amount0 * amount1) - MINIMUM_LIQUIDITY;
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
             // @note removed mul
