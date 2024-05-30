@@ -215,10 +215,13 @@ contract UniswapV2Pair is ERC20 {
         {
             // scope for reserve{0,1}Adjusted, avoids stack too deep errors
             // @note removed mul & sub
+            // applying the fee to the token being sent in (this affects both swaps and flashloans) and is 0.3% that goes to the pool (increasing K)
             uint256 balance0Adjusted = (balance0 * 1000) - (amount0In * 3);
             uint256 balance1Adjusted = (balance1 * 1000) - (amount1In * 3);
             require(
                 // @note removed mul
+                // checking that Xnew * Ynew >= Xprev * Yprev
+                // Knew >= Kprev
                 balance0Adjusted * balance1Adjusted >= uint256(_reserve0) * _reserve1 * (1000 ** 2),
                 "UniswapV2: K"
             );
