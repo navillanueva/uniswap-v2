@@ -64,6 +64,21 @@ contract UniswapV2Pair is ERC20 {
         factory = msg.sender;
     }
 
+    // @note since we switched to the solady ERC20 token, we have to override these functions
+
+    function name() public pure override returns (string memory) {
+        return "Uniswap V2";
+    }
+
+    function symbol() public pure override returns (string memory) {
+        return "UNI-V2";
+    }
+
+    function decimals() public pure override returns (uint8) {
+        return 18;
+    }
+
+
     function getReserves() public view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast) {
         _reserve0 = reserve0;
         _reserve1 = reserve1;

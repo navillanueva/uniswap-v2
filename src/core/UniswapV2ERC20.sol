@@ -6,7 +6,7 @@ import "./interfaces/IUniswapV2ERC20.sol";
 
 /// @title Uniswap V2 ERC20 Token
 /// @notice This contract implements the ERC20 token standard for Uniswap V2, adapted to Solidity 0.8.x. and removing safemath
-/// @dev For the scope of this project, this contract is depricated since we will be using Solady ERC20
+/// @dev For the scope of this project, this contract has been DEPRICATED since we will be using Solady ERC20
 
 contract UniswapV2ERC20 is IUniswapV2ERC20 {
 
