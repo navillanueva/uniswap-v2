@@ -8,9 +8,9 @@ import {FixedPointMathLib} from "solady/utils/FixedPointMathLib.sol";
 
 // @note removing old imports 
 // import "./UniswapV2ERC20.sol";
+// import "./libraries/Math.sol";
 
 import "./interfaces/IUniswapV2Pair.sol";
-import "./libraries/Math.sol";
 import "./libraries/UQ112x112.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV2Factory.sol";
@@ -163,8 +163,8 @@ contract UniswapV2Pair is ERC20 {
             liquidity = FixedPointMathLib.sqrt(amount0 * amount1) - MINIMUM_LIQUIDITY;
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
-            // @note removed mul
-            liquidity = Math.min((amount0 * _totalSupply) / _reserve0, (amount1 * _totalSupply) / _reserve1);
+            // @note removed mul and added solday min implementation
+            liquidity = FixedPointMathLib.min((amount0 * _totalSupply) / _reserve0, (amount1 * _totalSupply) / _reserve1);
         }
         require(liquidity > 0, "UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED");
         _mint(to, liquidity);
