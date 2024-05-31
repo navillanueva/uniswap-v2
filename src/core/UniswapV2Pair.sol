@@ -5,6 +5,8 @@ pragma solidity ^0.8.0;
 // @question why are named imports better
 import {ERC20} from "solady/tokens/ERC20.sol";
 import {FixedPointMathLib} from "solady/utils/FixedPointMathLib.sol";
+import {ReentrancyGuard} from "solady/utils/ReentrancyGuard.sol";
+
 
 // @note removing old imports 
 // import "./UniswapV2ERC20.sol";
@@ -164,6 +166,7 @@ contract UniswapV2Pair is ERC20 {
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
             // @note removed mul and added solday min implementation
+            // encourages you to provide liquidity at the current price range 
             liquidity = FixedPointMathLib.min((amount0 * _totalSupply) / _reserve0, (amount1 * _totalSupply) / _reserve1);
         }
         require(liquidity > 0, "UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED");
