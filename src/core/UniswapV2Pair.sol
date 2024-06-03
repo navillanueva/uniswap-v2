@@ -36,14 +36,15 @@ contract UniswapV2Pair is ERC20 {
     uint256 public price1CumulativeLast;
     uint256 public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
 
-    uint256 private unlocked = 1;
+    // @note removed for solady reentrancy guard
+    // uint256 private unlocked = 1; 
 
-    modifier lock() {
-        require(unlocked == 1, "UniswapV2: LOCKED");
-        unlocked = 0;
-        _;
-        unlocked = 1;
-    }
+    // modifier lock() {
+    //     require(unlocked == 1, "UniswapV2: LOCKED");
+    //     unlocked = 0;
+    //     _;
+    //     unlocked = 1;
+    // }
 
     // @note solidity 0.8.x introduces stricter type checking to avoid redundancies, it is already declared in the interface
     // @note brought them back after changing the inheritance schema
@@ -147,8 +148,9 @@ contract UniswapV2Pair is ERC20 {
         }
     }
 
+    // @note removed for solady reentrancy guard
     // this low-level function should be called from a contract which performs important safety checks
-    function mint(address to) external lock returns (uint256 liquidity) {
+    function mint(address to) external nonReentrant returns (uint256 liquidity) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
@@ -179,8 +181,9 @@ contract UniswapV2Pair is ERC20 {
         emit Mint(msg.sender, amount0, amount1);
     }
 
+    // @note removed for solady reentrancy guard
     // this low-level function should be called from a contract which performs important safety checks
-    function burn(address to) external lock returns (uint256 amount0, uint256 amount1) {
+    function burn(address to) external nonReentrant returns (uint256 amount0, uint256 amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
@@ -213,8 +216,9 @@ contract UniswapV2Pair is ERC20 {
         emit Burn(msg.sender, amount0, amount1, to);
     }
 
+    // @note removed for solady reentrancy guard
     // this low-level function should be called from a contract which performs important safety checks
-    function swap(uint256 amount0Out, uint256 amount1Out, address to, bytes calldata data) external lock {
+    function swap(uint256 amount0Out, uint256 amount1Out, address to, bytes calldata data) external nonReentrant {
         require(amount0Out > 0 || amount1Out > 0, "UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT");
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, "UniswapV2: INSUFFICIENT_LIQUIDITY");
@@ -254,8 +258,9 @@ contract UniswapV2Pair is ERC20 {
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
+    // @note removed for solady reentrancy guard
     // force balances to match reserves
-    function skim(address to) external lock {
+    function skim(address to) external nonReentrant {
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
         
@@ -264,8 +269,9 @@ contract UniswapV2Pair is ERC20 {
         _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)) - reserve1);
     }
 
+    // @note removed for solady reentrancy guard
     // force reserves to match balances
-    function sync() external lock {
+    function sync() external nonReentrant {
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), reserve0, reserve1);
     }
 }
