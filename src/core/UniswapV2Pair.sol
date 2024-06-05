@@ -18,7 +18,7 @@ import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 import "./interfaces/IUniswapV2Callee.sol";
 
-contract UniswapV2Pair is ERC20 {
+contract UniswapV2Pair is ERC20, ReentrancyGuard {
     using UQ112x112 for uint224;
 
     uint256 public constant MINIMUM_LIQUIDITY = 10 ** 3;
@@ -150,7 +150,7 @@ contract UniswapV2Pair is ERC20 {
 
     // @note removed for solady reentrancy guard
     // this low-level function should be called from a contract which performs important safety checks
-    function mint(address to) external ReentrancyGuard returns (uint256 liquidity) {
+    function mint(address to) external nonReentrant returns (uint256 liquidity) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
@@ -183,7 +183,7 @@ contract UniswapV2Pair is ERC20 {
 
     // @note removed for solady reentrancy guard
     // this low-level function should be called from a contract which performs important safety checks
-    function burn(address to) external ReentrancyGuard returns (uint256 amount0, uint256 amount1) {
+    function burn(address to) external nonReentrant returns (uint256 amount0, uint256 amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
@@ -218,7 +218,7 @@ contract UniswapV2Pair is ERC20 {
 
     // @note removed for solady reentrancy guard
     // this low-level function should be called from a contract which performs important safety checks
-    function swap(uint256 amount0Out, uint256 amount1Out, address to, bytes calldata data) external ReentrancyGuard {
+    function swap(uint256 amount0Out, uint256 amount1Out, address to, bytes calldata data) external nonReentrant {
         require(amount0Out > 0 || amount1Out > 0, "UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT");
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, "UniswapV2: INSUFFICIENT_LIQUIDITY");
@@ -260,7 +260,7 @@ contract UniswapV2Pair is ERC20 {
 
     // @note removed for solady reentrancy guard
     // force balances to match reserves
-    function skim(address to) external ReentrancyGuard {
+    function skim(address to) external nonReentrant {
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
         
@@ -271,7 +271,7 @@ contract UniswapV2Pair is ERC20 {
 
     // @note removed for solady reentrancy guard
     // force reserves to match balances
-    function sync() external ReentrancyGuard {
+    function sync() external nonReentrant {
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), reserve0, reserve1);
     }
 }
