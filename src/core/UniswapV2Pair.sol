@@ -151,12 +151,18 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
     // @note removed for solady reentrancy guard
     // this low-level function should be called from a contract which performs important safety checks
     function mint(address to) external nonReentrant returns (uint256 liquidity) {
-        (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
+        // @note check validity of caller since there is no router
+        require(to != address(0), "UniswapV2: INVALID_ADDRESS");
+
+        (uint112 _reserve0, uint112 _reserve1,) = getReserves();
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
         // @note removed sub
         uint256 amount0 = balance0 - _reserve0;
         uint256 amount1 = balance1 - _reserve1;
+
+        // @note check validityu of amounts since there is no router
+        require(amount0 > 0 && amount1 > 0, "UniswapV2: INSUFFICIENT_AMOUNT");
 
         bool feeOn = _mintFee(_reserve0, _reserve1);
         // @note changed totalSupply to totalSupply() after adding solady LP token
@@ -184,9 +190,12 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
     // @note removed for solady reentrancy guard
     // this low-level function should be called from a contract which performs important safety checks
     function burn(address to) external nonReentrant returns (uint256 amount0, uint256 amount1) {
-        (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
-        address _token0 = token0; // gas savings
-        address _token1 = token1; // gas savings
+        // @note check validity of caller since there is no router
+        require(to != address(0), "UniswapV2: INVALID_ADDRESS");
+
+        (uint112 _reserve0, uint112 _reserve1,) = getReserves();
+        address _token0 = token0;
+        address _token1 = token1;
         uint256 balance0 = IERC20(_token0).balanceOf(address(this));
         uint256 balance1 = IERC20(_token1).balanceOf(address(this));
         
@@ -222,6 +231,8 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
         require(amount0Out > 0 || amount1Out > 0, "UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT");
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, "UniswapV2: INSUFFICIENT_LIQUIDITY");
+         // @note check validity of caller since there is no router
+        require(to != address(0) && to != token0 && to != token1, "UniswapV2: INVALID_TO");
 
         uint256 balance0;
         uint256 balance1;
@@ -261,9 +272,11 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
     // @note removed for solady reentrancy guard
     // force balances to match reserves
     function skim(address to) external nonReentrant {
-        address _token0 = token0; // gas savings
-        address _token1 = token1; // gas savings
-        
+         // @note check validity of caller since there is no router
+        require(to != address(0), "UniswapV2: INVALID_ADDRESS");
+        address _token0 = token0;
+        address _token1 = token1;
+
         // @note removed sub
         _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)) - reserve0);
         _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)) - reserve1);
