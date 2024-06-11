@@ -1,0 +1,1 @@
+**Why does the price0CumulativeLast and price1CumulativeLast never decrement?**
