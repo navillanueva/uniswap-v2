@@ -30,7 +30,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
 
     uint112 private reserve0; // uses single storage slot, accessible via getReserves
     uint112 private reserve1; // uses single storage slot, accessible via getReserves
-    uint32 private blockTimestampLast; // uses single storage slot, accessible via getReserves
+    uint32 private blockTimestampLast; 
 
     uint256 public price0CumulativeLast;
     uint256 public price1CumulativeLast;
