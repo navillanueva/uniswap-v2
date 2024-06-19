@@ -103,7 +103,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
     // update reserves and, on the first call per block, price accumulators
     function _update(uint256 balance0, uint256 balance1, uint112 _reserve0, uint112 _reserve1) private {
         
-        // @note solidity 0.5.15 interprets uint112(-1) as the max value you can assign a uint122
+        // @note solidity 0.5.15 interprets uint112(-1) as the max value you can assign a 
         // @note solidity 0.8.x use the type(uint112).max to represent the maximum value of uint112. This approach is safer and more explicit.
         require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, "UniswapV2: OVERFLOW");
         uint32 blockTimestamp = uint32(block.timestamp % 2 ** 32);
