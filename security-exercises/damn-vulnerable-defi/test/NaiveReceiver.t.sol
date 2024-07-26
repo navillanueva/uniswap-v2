@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Damn Vulnerable DeFi v4 (https://damnvulnerabledefi.xyz)
-pragma solidity =0.8.25;
+pragma solidity =0.8.19;
 
 import {Test, console} from "forge-std/Test.sol";
-import {NaiveReceiverPool, Multicall, WETH} from "../core/NaiveReceiverPool.sol";
-import {FlashLoanReceiver} from "../core/FlashLoanReceiver.sol";
-import {BasicForwarder} from "../core/BasicForwarder.sol";
+import {NaiveReceiverPool} from "../contracts/NaiveReceiverPool.sol";
+import {Multicall} from "../contracts/Multicall.sol";
+import {FlashLoanReceiver} from "../contracts/FlashLoanReceiver.sol";
+import {BasicForwarder} from "../contracts/BasicForwarder.sol";
 
 contract NaiveReceiverChallenge is Test {
     address deployer = makeAddr("deployer");
