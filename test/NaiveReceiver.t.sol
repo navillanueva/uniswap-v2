@@ -3,10 +3,10 @@
 pragma solidity =0.8.25;
 
 import {Test, console} from "forge-std/Test.sol";
-import {NaiveReceiverPool} from "../security-exercises/damn-vulnerable-defi/contracts/NaiveReceiverPool.sol";
-import {Multicall} from "../security-exercises/damn-vulnerable-defi/contracts/Multicall.sol";
-import {FlashLoanReceiver} from "../security-exercises/damn-vulnerable-defi/contracts/FlashLoanReceiver.sol";
-import {BasicForwarder} from "../security-exercises/damn-vulnerable-defi/contracts/BasicForwarder.sol";
+import {NaiveReceiverPool} from "../security-exercises/damn-vulnerable-defi/naive-receiver/NaiveReceiverPool.sol";
+import {Multicall} from "../security-exercises/damn-vulnerable-defi/naive-receiver/Multicall.sol";
+import {FlashLoanReceiver} from "../security-exercises/damn-vulnerable-defi/naive-receiver/FlashLoanReceiver.sol";
+import {BasicForwarder} from "../security-exercises/damn-vulnerable-defi/naive-receiver/BasicForwarder.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 
 // added for solution

