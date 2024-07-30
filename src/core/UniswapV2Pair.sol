@@ -21,7 +21,7 @@ import "./interfaces/IUniswapV2Callee.sol";
 contract UniswapV2Pair is ERC20, ReentrancyGuard {
     using UQ112x112 for uint224;
 
-    uint256 public constant MINIMUM_LIQUIDITY = 10 ** 3;
+    uint256 public constant MINIMUM_LIQUIDITY = 10 ** 3;  // to prevent inflation attack
     bytes4 private constant SELECTOR = bytes4(keccak256(bytes("transfer(address,uint256)")));
 
     address public factory;
@@ -119,7 +119,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
         emit Sync(reserve0, reserve1);
     }
 
-    // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
+    // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k) goes to uniswap
     function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
         address feeTo = IUniswapV2Factory(factory).feeTo();
         feeOn = feeTo != address(0);
@@ -170,6 +170,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
         if (_totalSupply == 0) {
             // @note removed mul & sub and added solady sqrt
             // liquidity = Math.sqrt(amount0 * amount1) - MINIMUM_LIQUIDITY;
+            // @note square root would be used to calculate the protocol fee on removal of liquidity
             liquidity = FixedPointMathLib.sqrt(amount0 * amount1) - MINIMUM_LIQUIDITY;
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
