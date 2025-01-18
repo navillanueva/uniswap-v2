@@ -8,7 +8,7 @@ import {FixedPointMathLib} from "solady/utils/FixedPointMathLib.sol";
 import {ReentrancyGuard} from "solady/utils/ReentrancyGuard.sol";
 
 
-// @note removing old imports 
+// @note removing old imports
 // import "./UniswapV2ERC20.sol";
 // import "./libraries/Math.sol";
 
@@ -30,14 +30,14 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
 
     uint112 private reserve0; // uses single storage slot, accessible via getReserves
     uint112 private reserve1; // uses single storage slot, accessible via getReserves
-    uint32 private blockTimestampLast; 
+    uint32 private blockTimestampLast;
 
     uint256 public price0CumulativeLast;
     uint256 public price1CumulativeLast;
     uint256 public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
 
     // @note removed for solady reentrancy guard
-    // uint256 private unlocked = 1; 
+    // uint256 private unlocked = 1;
 
     // modifier lock() {
     //     require(unlocked == 1, "UniswapV2: LOCKED");
@@ -102,7 +102,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
 
     // update reserves and, on the first call per block, price accumulators
     function _update(uint256 balance0, uint256 balance1, uint112 _reserve0, uint112 _reserve1) private {
-        
+
         // @note solidity 0.5.15 interprets uint112(-1) as the max value you can assign a uint112
         // @note solidity 0.8.x use the type(uint112).max to represent the maximum value of uint112. This approach is safer and more explicit.
         require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, "UniswapV2: OVERFLOW");
@@ -175,14 +175,14 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
             // @note removed mul and added solday min implementation
-            // encourages you to provide liquidity at the current price range 
+            // encourages you to provide liquidity at the current price range
             liquidity = FixedPointMathLib.min((amount0 * _totalSupply) / _reserve0, (amount1 * _totalSupply) / _reserve1);
         }
         require(liquidity > 0, "UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED");
         _mint(to, liquidity);
 
         _update(balance0, balance1, _reserve0, _reserve1);
-        
+
         // @note removed mul
         if (feeOn) kLast = uint256(reserve0) * reserve1; // reserve0 and reserve1 are up-to-date
         emit Mint(msg.sender, amount0, amount1);
@@ -199,7 +199,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
         address _token1 = token1;
         uint256 balance0 = IERC20(_token0).balanceOf(address(this));
         uint256 balance1 = IERC20(_token1).balanceOf(address(this));
-        
+
         // @note changed balanceOf since solay handles it as a function that is SLOAD the slot (instead of a variable) more gas optimized
         // uint256 liquidity = balanceOf[address(this)];
         uint256 liquidity = balanceOf(address(this));
@@ -254,7 +254,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
         {
             // scope for reserve{0,1}Adjusted, avoids stack too deep errors
             // @note removed mul & sub
-            // applying the fee to the token being sent in (this affects both swaps and flashloans) and is 0.3% that goes to the pool (increasing K)
+            // applying the fee to the token being sent in (this affects both swaps and s) and is 0.3% that goes to the pool (increasing K)
             uint256 balance0Adjusted = (balance0 * 1000) - (amount0In * 3);
             uint256 balance1Adjusted = (balance1 * 1000) - (amount1In * 3);
             require(
@@ -288,4 +288,46 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
     function sync() external nonReentrant {
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), reserve0, reserve1);
     }
+
+    function max(address token) external view returns (uint256) {
+        if (token == toekn0) return reserve0;
+        if (token == token1) return reserve1;
+        return 0;
+    }
+
+    function flashFee(address token, uint256 amount) external pure returns (uint256) {
+        require(amount > 0, "UniswapV2: INVALID_AMOUNT");
+        // Fee: 0.3% of the amount
+        return (amount * 3) / 1000;
+    }
+
+    function flashLoan(
+        IERC3156FlashBorrower receiver,
+        address token,
+        uint256 amount,
+        bytes calldata data
+    ) external nonReentrant returns (bool) {
+        require(token == token0 || token == token1, "UniswapV2: INVALID_TOKEN");
+        require(amount > 0, "UniswapV2: INVALID_AMOUNT");
+
+        uint256 fee = (amount * 3) / 1000;
+        uint256 balanceBefore = IERC20(token).balanceOf(address(this));
+        require(balanceBefore >= amount, "UniswapV2: INSUFFICIENT_LIQUIDITY");
+
+        // Transfer the tokens to the receiver
+        _safeTransfer(token, address(receiver), amount);
+
+        // Call the `onFlashLoan` function on the receiver
+        require(
+            receiver.onFlashLoan(msg.sender, token, amount, fee, data) == keccak256("ERC3156FlashBorrower.onFlashLoan"),
+            "UniswapV2: INVALID_FLASH_LOAN_CALLBACK"
+        );
+
+        uint256 balanceAfter = IERC20(token).balanceOf(address(this));
+        require(balanceAfter >= balanceBefore + fee, "UniswapV2: INSUFFICIENT_REPAYMENT");
+
+        return true;
+    }
+
+
 }
