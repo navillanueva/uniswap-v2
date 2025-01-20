@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import {ERC20} from "solady/tokens/ERC20.sol";
 import {FixedPointMathLib} from "solady/utils/FixedPointMathLib.sol";
 import {ReentrancyGuard} from "solady/utils/ReentrancyGuard.sol";
+import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 
 // @note removing old imports
@@ -290,7 +291,7 @@ contract UniswapV2Pair is ERC20, ReentrancyGuard {
     }
 
     function max(address token) external view returns (uint256) {
-        if (token == toekn0) return reserve0;
+        if (token == token0) return reserve0;
         if (token == token1) return reserve1;
         return 0;
     }
